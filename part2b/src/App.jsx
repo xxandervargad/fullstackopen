@@ -1,5 +1,45 @@
 import { useState } from "react";
 
+const Person = ({ person }) => {
+  console.log(person);
+
+  return (
+    <div>
+      {person.name} {person.number}
+    </div>
+  );
+};
+
+const AddForm = ({ handleSubmit }) => {
+  console.log("add form");
+
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+
+  const handleForm = (e) => handleSubmit(e, newName, newNumber);
+
+  return (
+    <form onSubmit={handleForm}>
+      <div>
+        name: <input onChange={(e) => setNewName(e.target.value)} />
+      </div>
+      <div>
+        number: <input onChange={(e) => setNewNumber(e.target.value)} />
+      </div>
+      <div>
+        <button type="submit">add</button>
+      </div>
+    </form>
+  );
+};
+
+const PersonList = ({ list, filterString }) => {
+  console.log("person list");
+  const filter = (person) => person.name.includes(filterString);
+  const map = (person, i) => <Person key={person + i} person={person} />;
+  return list.filter(filter).map(map);
+};
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: "Arto Hellas", number: "040-123456", id: 1 },
@@ -7,11 +47,10 @@ const App = () => {
     { name: "Dan Abramov", number: "12-43-234345", id: 3 },
     { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
   ]);
-  const [newName, setNewName] = useState("");
-  const [filterString, setFilterString] = useState("");
-  const [newNumber, setNewNumber] = useState("");
 
-  const handleSubmit = (e) => {
+  const [filterString, setFilterString] = useState("");
+
+  const handleSubmit = (e, newName, newNumber) => {
     e.preventDefault();
     if (persons.map((person) => person.name).includes(newName)) {
       alert(`${newName} is already added to phonebook`);
@@ -20,32 +59,14 @@ const App = () => {
     setPersons(persons.concat({ name: newName, number: newNumber }));
   };
 
-  const filter = (person) => person.name.includes(filterString);
-
   return (
     <div>
       <h2>Phonebook</h2>
       filter: <input onChange={(e) => setFilterString(e.target.value)} />
       <h2>add a new</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          name: <input onChange={(e) => setNewName(e.target.value)} />
-        </div>
-        <div>
-          number: <input onChange={(e) => setNewNumber(e.target.value)} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <AddForm handleSubmit={handleSubmit} />
       <h2>Numbers</h2>
-      {persons.filter(filter).map((person, i) => {
-        return (
-          <div key={person.name + i}>
-            {person.name} {person.number}
-          </div>
-        );
-      })}
+      <PersonList list={persons} filterString={filterString} />
     </div>
   );
 };
